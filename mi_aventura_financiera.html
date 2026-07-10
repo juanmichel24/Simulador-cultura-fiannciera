@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Aventura Financiera</title>
+    
+    <style>
+        :root {
+            /* Paleta de colores vibrante y educativa */
+            --primary: #4f46e5;      /* Indigo */
+            --primary-light: #818cf8;
+            --secondary: #10b981;    /* Esmeralda / Aciertos */
+            --warning: #f59e0b;      /* Ambar / Monedas */
+            --danger: #ef4444;       /* Rojo / Errores */
+            --info: #0ea5e9;         /* Azul claro / Instituciones */
+            --bg-body: #f1f5f9;      /* Fondo general */
+            --bg-card: #ffffff;      /* Fondo de tarjetas */
+            --text-main: #1e293b;    /* Texto principal */
+            --text-muted: #64748b;   /* Texto secundario */
+            
+            /* Categorías Colores */
+            --cat-dinero: #f59e0b;
+            --cat-ahorro: #10b981;
+            --cat-presupuesto: #8b5cf6;
+            --cat-consumo: #ec4899;
+            --cat-instituciones: #3b82f6;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 15px;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(79, 70, 229, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 90% 80%, rgba(16, 185, 129, 0.05) 0%, transparent 50%);
+        }
+
+        .app-container {
+            background: var(--bg-card);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+            width: 100%;
+            max-width: 800px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .screen {
+            display: none;
+            padding: 30px;
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        h1, h2, h3 { color: var(--primary); margin-bottom: 15px; }
+        p { line-height: 1.6; margin-bottom: 15px; }
+        
+        .text-center { text-align: center; }
+        .icon-large { font-size: 4rem; margin-bottom: 10px; display: inline-block; }
+
+        /* Formularios y Botones */
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-main);
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            width: 100%;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(79, 70, 229, 0.3);
+            background: var(--primary-light);
+        }
+
+        .btn:disabled {
+            background: #cbd5e1;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .header-stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f1f5f9;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .stat-badge {
+            background: #f8fafc;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.95rem;
+        }
+
+        .progress-container {
+            width: 100%;
+            height: 10px;
+            background: #e2e8f0;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: var(--secondary);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .question-category {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: white;
+        }
+
+        .question-text {
+            font-size: 1.3rem;
+            margin-bottom: 25px;
+            color: var(--text-main);
+            font-weight: 600;
+        }
+
+        .options-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option-btn {
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            padding: 15px 20px;
+            border-radius: 12px;
+            font-size: 1.05rem;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text-main);
+        }
+
+        .option-btn:hover:not(:disabled) {
+            border-color: var(--primary-light);
+            background: #e0e7ff;
+        }
+
+        .option-correct {
+            background: #dcfce7 !important;
+            border-color: var(--secondary) !important;
+            color: #166534 !important;
+        }
+
+        .option-wrong {
+            background: #fee2e2 !important;
+            border-color: var(--danger) !important;
+            color: #991b1b !important;
+        }
+
+        .results-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .score-circle {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: conic-gradient(var(--secondary) 0%, #e2e8f0 0%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 20px;
+            position: relative;
+        }
+
+        .score-inner {
+            width: 120px;
+            height: 120px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .score-inner h2 { margin: 0; font-size: 2.5rem; color: var(--text-main); }
+        .score-inner span { font-size: 0.9rem; color: var(--text-muted); }
+
+        .level-badge {
+            display: inline-block;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            color: white;
+        }
+
+        .dimensions-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .dimension-card {
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .dimension-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        .diagnosis-box {
+            background: #fffbeb;
+            border-left: 4px solid var(--warning);
+            padding: 20px;
+            border-radius: 0 12px 12px 0;
+            margin-bottom: 30px;
+            text-align: left;
+        }
+
+        .diagnosis-box h3 { color: #b45309; margin-top: 0; }
+        .diagnosis-list li { margin-bottom: 10px; margin-left: 20px; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (min-width: 600px) {
+            .screen { padding: 40px; }
+            .dimensions-grid { grid-template-columns: 1fr 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        
+        <!-- PANTALLA DE INICIO -->
+        <div id="screen-start" class="screen active">
+            <div class="text-center">
+                <span class="icon-large">🚀💰</span>
+                <h1>Mi Aventura Financiera</h1>
+                <p>Descubre qué tanto sabes sobre el manejo del dinero</p>
+            </div>
+            
+            <div class="form-group" style="margin-top: 30px;">
+                <label for="student-name">👤 Nombre del estudiante:</label>
+                <input type="text" id="student-name" placeholder="Escribe tu nombre completo" required>
+            </div>
+            <div class="form-group">
+                <label for="student-school">🏫 Escuela:</label>
+                <input type="text" id="student-school" placeholder="Nombre de tu escuela" required>
+            </div>
+            <div class="form-group">
+                <label for="student-group">📚 Grupo:</label>
+                <input type="text" id="student-group" placeholder="Ej. 5to A" required>
+            </div>
+
+            <button class="btn" onclick="startAssessment()" style="margin-top: 20px;">
+                Comenzar evaluación ➡️
+            </button>
+        </div>
+
+        <!-- PANTALLA DE EVALUACIÓN -->
+        <div id="screen-assessment" class="screen">
+            <div class="header-stats">
+                <div class="stat-badge">
+                    <span>Pregunta:</span>
+                    <strong id="q-counter">1 / 40</strong>
+                </div>
+                <div class="stat-badge">
+                    <span>⏱️</span>
+                    <strong id="timer">00:00</strong>
+                </div>
+            </div>
+
+            <div class="progress-container">
+                <div id="progress-bar" class="progress-bar"></div>
+            </div>
+
+            <div id="category-badge" class="question-category">Categoría</div>
+            
+            <h2 id="question-text" class="question-text">Texto de la pregunta...</h2>
+            
+            <div id="options-container" class="options-grid">
+                <!-- Opciones inyectadas vía JS -->
+            </div>
+        </div>
+
+        <!-- PANTALLA DE RESULTADOS -->
+        <div id="screen-results" class="screen">
+            <div class="results-header">
+                <span class="icon-large">🏆</span>
+                <h1>¡Misión Completada, <span id="res-name">Alumno</span>!</h1>
+                
+                <div id="score-circle" class="score-circle">
+                    <div class="score-inner">
+                        <h2 id="res-score">0</h2>
+                        <span>de 40 pts</span>
+                    </div>
+                </div>
+                
+                <div id="res-level" class="level-badge" style="background: var(--primary);">Nivel Evaluado</div>
+                <p style="font-size: 1.2rem; font-weight: bold;">Porcentaje total: <span id="res-percentage">0%</span></p>
+            </div>
+
+            <h3>📊 Tus Resultados por Área</h3>
+            <div id="dimensions-container" class="dimensions-grid">
+                <!-- Barras de dimensiones inyectadas vía JS -->
+            </div>
+
+            <div class="diagnosis-box">
+                <h3>💡 Tu Diagnóstico Personalizado</h3>
+                <ul id="diagnosis-list" class="diagnosis-list">
+                    <!-- Comentarios inyectados vía JS -->
+                </ul>
+            </div>
+
+            <div class="text-center">
+                <p>Escuela: <strong id="res-school"></strong> | Grupo: <strong id="res-group"></strong></p>
+                <button class="btn" onclick="location.reload()" style="max-width: 300px;">
+                    🔄 Nueva Evaluación
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Base de Datos de Preguntas (40 en total, 8 por dimensión)
+        const dimensionsDef = {
+            dinero: { name: "El dinero y su uso", color: "var(--cat-dinero)", icon: "💵" },
+            ahorro: { name: "Ahorro", color: "var(--cat-ahorro)", icon: "🐖" },
+            presupuesto: { name: "Presupuesto", color: "var(--cat-presupuesto)", icon: "📝" },
+            consumo: { name: "Consumo responsable", color: "var(--cat-consumo)", icon: "🛒" },
+            instituciones: { name: "Instituciones financieras", color: "var(--cat-instituciones)", icon: "🏦" }
+        };
+
+        const questionsDatabase = [
+            // DIMENSIÓN 1: El dinero y su uso
+            { dim: 'dinero', q: "¿Cuál es la función principal del dinero en nuestra vida diaria?", opts: ["Para coleccionarlo como estampas.", "Para intercambiarlo por bienes y servicios que necesitamos.", "Para regalarlo a desconocidos en la calle.", "Para usarlo como papel reciclable."], ans: 1 },
+            { dim: 'dinero', q: "Si tienes hambre y quieres comprar un alimento, ¿qué tipo de gasto es?", opts: ["Un deseo, porque quiero comer algo rico.", "Una necesidad, porque alimentarse es básico para vivir.", "Un lujo, porque comer cuesta dinero.", "Un ahorro, porque mi cuerpo guarda energía."], ans: 1 },
+            { dim: 'dinero', q: "¿Cuál de las siguientes opciones es un DESEO y no una necesidad?", opts: ["Comprar zapatos escolares porque los míos se rompieron.", "Ir al médico por una fuerte gripe.", "Comprar el último videojuego que salió ayer.", "Pagar la luz de la casa."], ans: 2 },
+            { dim: 'dinero', q: "¿Cómo obtienen las personas el dinero de forma honesta?", opts: ["Esperando a que crezca en un árbol.", "Trabajando y ofreciendo un servicio o producto.", "Pidiéndolo siempre prestado y nunca pagando.", "Encontrándolo en la calle todos los días."], ans: 1 },
+            { dim: 'dinero', q: "¿Qué significa hacer un 'uso responsable' del dinero?", opts: ["Gastar todo lo que tengo el mismo día que lo recibo.", "Comprar solo dulces para mí y mis amigos.", "Pensar antes de comprar, cubrir mis necesidades y guardar un poco.", "Esconderlo bajo la cama para nunca usarlo."], ans: 2 },
+            { dim: 'dinero', q: "Verdadero o Falso: Las cosas cuestan dinero por el trabajo y los materiales que se usaron para hacerlas.", opts: ["Verdadero", "Falso"], ans: 0 },
+            { dim: 'dinero', q: "Ana quiere una mochila nueva de unicornio, pero su mochila actual está en perfecto estado. Esto es un ejemplo de...", opts: ["Una necesidad urgente.", "Un deseo.", "Una inversión a largo plazo.", "Un gasto médico."], ans: 1 },
+            { dim: 'dinero', q: "¿Por qué algunos productos son más caros que otros?", opts: ["Porque la tienda los quiere vender más rápido.", "Por el tipo de materiales, el tiempo de elaboración o la marca.", "Porque el dinero vale menos en esas tiendas.", "Por pura casualidad."], ans: 1 },
+
+            // DIMENSIÓN 2: Ahorro
+            { dim: 'ahorro', q: "¿Qué es el ahorro?", opts: ["Gastar menos de lo que recibes y guardar una parte para el futuro.", "Gastar todo mi domingo y pedir prestado para más dulces.", "Comprar cosas baratas aunque no sirvan.", "Esconder billetes en libros que nunca abriré."], ans: 0 },
+            { dim: 'ahorro', q: "¿Cuál de estos es un buen hábito de ahorro?", opts: ["Sacar dinero de mi alcancía cada vez que se me antoja algo.", "Separar una parte fija de mi domingo antes de gastar en cualquier otra cosa.", "Ahorrar solo cuando encuentro monedas tiradas.", "Gastar todo y prometer que ahorraré la próxima semana."], ans: 1 },
+            { dim: 'ahorro', q: "Las 'metas de ahorro' sirven para...", opts: ["Tener un propósito claro (como comprar una bicicleta) que nos motive a guardar dinero.", "Hacer competencia con mis amigos de quién tiene más dinero.", "Obligar a mis papás a comprarme más cosas.", "Aburrirme anotando números en una libreta."], ans: 0 },
+            { dim: 'ahorro', q: "¿Qué pasa si ocurre una 'emergencia' (como que se ponche la llanta de la bici) y tienes ahorros?", opts: ["Tengo que tirar la bicicleta.", "Puedo usar mi ahorro para solucionarlo sin preocuparme tanto.", "Mis ahorros desaparecen mágicamente.", "Los ahorros no se pueden usar para emergencias."], ans: 1 },
+            { dim: 'ahorro', q: "Verdadero o Falso: Solo los adultos con trabajos formales pueden ahorrar dinero.", opts: ["Verdadero", "Falso. Los niños también pueden ahorrar de su domingo o regalos."], ans: 1 },
+            { dim: 'ahorro', q: "Tienes 50 pesos y decides guardar 10 pesos en tu alcancía. ¿Qué porcentaje de tu dinero ahorraste?", opts: ["10%", "20%", "50%", "5%"], ans: 1 },
+            { dim: 'ahorro', q: "Si quieres comprar un juego de mesa de $300 pesos y ahorras $30 pesos a la semana, ¿en cuántas semanas lo podrás comprar?", opts: ["En 5 semanas.", "En 10 semanas.", "En 15 semanas.", "En 3 semanas."], ans: 1 },
+            { dim: 'ahorro', q: "¿Qué es mejor usar como alcancía?", opts: ["Un lugar o recipiente seguro donde el dinero no se pierda.", "Un bolsillo roto de un pantalón viejo.", "Dejar las monedas sueltas en el piso de la recámara.", "Dárselo a mi hermano pequeño para que juegue."], ans: 0 },
+
+            // DIMENSIÓN 3: Presupuesto
+            { dim: 'presupuesto', q: "¿Qué es un presupuesto?", opts: ["Un documento de la escuela con mis calificaciones.", "Un plan escrito que me ayuda a saber cuánto dinero tengo y en qué lo voy a gastar.", "Un impuesto que le pago al gobierno.", "Una lista de puros deseos para Navidad."], ans: 1 },
+            { dim: 'presupuesto', q: "En un presupuesto familiar, ¿cuál de los siguientes es un 'Gasto Fijo' (que se debe pagar casi igual cada mes)?", opts: ["Ir al cine el domingo.", "Comprar ropa nueva de moda.", "El pago del recibo de la luz o el agua.", "Comprar helados."], ans: 2 },
+            { dim: 'presupuesto', q: "Si tus ingresos (lo que recibes) son de $100 pesos, pero tus gastos planeados son de $120, ¿qué deberías hacer?", opts: ["Pedir prestado y endeudarme.", "Revisar mi lista y recortar los gastos que son deseos para no pasar de los $100.", "Gastar los $120 y esconder la cuenta.", "Robar los $20 que faltan."], ans: 1 },
+            { dim: 'presupuesto', q: "Verdadero o Falso: Hacer un presupuesto te ayuda a no gastar dinero que no tienes.", opts: ["Verdadero", "Falso"], ans: 0 },
+            { dim: 'presupuesto', q: "Al administrar tus recursos, ¿qué debes pagar PRIMERO?", opts: ["Los videojuegos y juguetes.", "Las necesidades básicas y deudas urgentes.", "Los dulces de la cooperativa escolar.", "Los regalos para amigos."], ans: 1 },
+            { dim: 'presupuesto', q: "¿Qué nombre recibe el dinero que entra a nuestro bolsillo (ej. sueldo, domingo)?", opts: ["Egreso o Gasto.", "Deuda.", "Ingreso.", "Préstamo."], ans: 2 },
+            { dim: 'presupuesto', q: "Tienes que comprar material escolar, pero también quieres una revista. Tu dinero solo alcanza para una cosa. Elegir el material escolar es un ejemplo de...", opts: ["Mala suerte.", "Toma de decisiones financieras priorizando necesidades.", "Un gasto innecesario.", "Un robo."], ans: 1 },
+            { dim: 'presupuesto', q: "¿Para qué sirve llevar un registro (anotar) de todo lo que compramos?", opts: ["Para practicar caligrafía.", "Para darnos cuenta en qué se nos va el dinero y corregir malos hábitos.", "Para presumir a los amigos lo que compramos.", "Para nada, es pérdida de tiempo."], ans: 1 },
+
+            // DIMENSIÓN 4: Consumo responsable
+            { dim: 'consumo', q: "¿Qué significa 'comparar precios'?", opts: ["Comprar lo primero que veo en la tienda.", "Revisar cuánto cuesta el mismo producto en diferentes lugares para elegir la mejor opción.", "Pelear con el vendedor para que baje el precio.", "Pagar siempre el producto más caro creyendo que es el mejor."], ans: 1 },
+            { dim: 'consumo', q: "Ves un comercial de televisión sobre un juguete que 'te hará volar'. Como consumidor responsable, tú sabes que...", opts: ["La publicidad a veces exagera para convencernos de comprar, debo ser crítico.", "Si sale en la tele, es 100% verdad y debo comprarlo ya.", "Debo pedir un préstamo para comprarlo hoy mismo.", "El juguete realmente tiene magia."], ans: 0 },
+            { dim: 'consumo', q: "¿Cuál es una acción de consumo inteligente?", opts: ["Ir al supermercado con hambre y sin lista.", "Comprar útiles escolares a mitad de ciclo porque están en oferta y guardarlos para el próximo año.", "Gastar todo en envolturas bonitas.", "Comprar ropa de invierno en pleno invierno cuando es más cara."], ans: 1 },
+            { dim: 'consumo', q: "Cuidar la luz apagando los focos que no usas en casa también es una decisión financiera porque...", opts: ["Los focos se gastan visualmente.", "El recibo de luz llegará más barato, ahorrando dinero a la familia.", "A los bancos les gusta la oscuridad.", "No es una decisión financiera, solo ecológica."], ans: 1 },
+            { dim: 'consumo', q: "Una amiga te invita a comer pizza pero tú llevaste tu propio almuerzo a la escuela. ¿Cuál es la decisión que cuida tus finanzas?", opts: ["Tirar tu almuerzo y comprar la pizza.", "Comer tu almuerzo y decirle amablemente que hoy no gastarás, pero pueden comer juntas.", "Comprar la pizza y esconder tu almuerzo.", "Pedirle a tu amiga que te pague la pizza."], ans: 1 },
+            { dim: 'consumo', q: "Reutilizar libretas que aún tienen hojas limpias del año pasado es...", opts: ["Un acto de tacañería extrema.", "Un consumo responsable que ahorra recursos y dinero.", "Algo que está prohibido por las escuelas.", "Una forma de perder el tiempo."], ans: 1 },
+            { dim: 'consumo', q: "Verdadero o Falso: Las ofertas de '2x1' SIEMPRE son buenas, aunque no necesitemos el producto.", opts: ["Verdadero", "Falso. Si no lo necesitamos, gastar en ello es desperdiciar dinero."], ans: 1 },
+            { dim: 'consumo', q: "¿Qué son las 'compras por impulso'?", opts: ["Compras que se planean con meses de anticipación.", "Cosas que compramos de repente por emoción sin pensar si las necesitamos o podemos pagarlas.", "Compras de comida para el almuerzo diario.", "Compras necesarias de medicinas."], ans: 1 },
+
+            // DIMENSIÓN 5: Instituciones financieras básicas
+            { dim: 'instituciones', q: "¿Qué es un Banco?", opts: ["Una tienda donde venden dinero de juguete.", "Una institución formal y segura que guarda nuestro dinero y ofrece otros servicios financieros.", "Un parque público.", "Una bodega secreta de los gobiernos."], ans: 1 },
+            { dim: 'instituciones', q: "¿Para qué sirve una 'Cuenta de Ahorro' en un banco?", opts: ["Para guardar el dinero de forma más segura que bajo el colchón y que a veces genere pequeños intereses.", "Para regalar mi dinero al gerente del banco.", "Para esconder dinero de mis padres.", "Para poder entrar al banco a usar el baño."], ans: 0 },
+            { dim: 'instituciones', q: "El banco te da un NIP (Número de Identificación Personal) de 4 dígitos para tu tarjeta. ¿Qué debes hacer con él?", opts: ["Anotarlo atrás de la tarjeta para que no se me olvide.", "Publicarlo en mis redes sociales.", "Memorizarlo y mantenerlo en secreto; nunca decírselo a nadie.", "Dárselo a cualquier empleado de una tienda cuando compro."], ans: 2 },
+            { dim: 'instituciones', q: "¿Qué es una tarjeta de débito?", opts: ["Un plástico mágico que me da dinero gratis sin límite.", "Una tarjeta conectada al dinero que YA tengo guardado en mi cuenta de banco.", "Una tarjeta de descuentos de la pizzería.", "Un permiso para pedir prestado un millón de pesos."], ans: 1 },
+            { dim: 'instituciones', q: "Si recibes un correo electrónico diciendo 'Ganaste un premio, mándanos los datos de tu tarjeta para depositarte', ¿qué debes hacer?", opts: ["Mandar los datos rápidamente antes de que se acabe el premio.", "Ignorarlo o borrarlo y avisar a un adulto, porque probablemente es un fraude o estafa.", "Mandar solo la mitad de los datos.", "Responder con un correo pidiendo más dinero."], ans: 1 },
+            { dim: 'instituciones', q: "Verdadero o Falso: Los bancos prestan dinero a las personas, pero las personas deben devolverlo junto con una cantidad extra llamada 'interés'.", opts: ["Verdadero", "Falso. Los bancos regalan el dinero."], ans: 0 },
+            { dim: 'instituciones', q: "¿Qué es un Cajero Automático (ATM)?", opts: ["Una máquina que imprime dinero falso.", "Una máquina donde puedes sacar efectivo de tu propia cuenta bancaria usando tu tarjeta y NIP.", "Un videojuego de la calle.", "Una persona robótica que trabaja en el banco."], ans: 1 },
+            { dim: 'instituciones', q: "Si pierdes tu tarjeta bancaria en la calle, ¿cuál es la primera regla de seguridad?", opts: ["No hacer nada y esperar a que alguien la devuelva.", "Llorar.", "Avisar a tus padres inmediatamente para llamar al banco y bloquear/cancelar la tarjeta.", "Buscar en la calle por un mes antes de decir algo."], ans: 2 }
+        ];
+
+        let state = {
+            student: { name: "", school: "", group: "" },
+            currentQIndex: 0,
+            scores: { dinero: 0, ahorro: 0, presupuesto: 0, consumo: 0, instituciones: 0 },
+            timerSeconds: 0,
+            timerInterval: null,
+            questions: [] // Se mezclarán aleatoriamente
+        };
+
+        // Utilidad para mezclar array
+        function shuffle(array) {
+            let currentIndex = array.length, randomIndex;
+            while (currentIndex != 0) {
+                randomIndex = Math.floor(Math.random() * currentIndex);
+                currentIndex--;
+                [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+            }
+            return array;
+        }
+
+        function formatTime(sec) {
+            let m = Math.floor(sec / 60).toString().padStart(2, '0');
+            let s = (sec % 60).toString().padStart(2, '0');
+            return `${m}:${s}`;
+        }
+
+        function startAssessment() {
+            const name = document.getElementById('student-name').value.trim();
+            const school = document.getElementById('student-school').value.trim();
+            const group = document.getElementById('student-group').value.trim();
+
+            if (!name || !school || !group) {
+                alert("Por favor, completa todos los datos para iniciar tu aventura.");
+                return;
+            }
+
+            state.student = { name, school, group };
+            
+            // Preparar preguntas (mezclamos el orden de aparición general pero mantenemos el mapeo)
+            state.questions = shuffle([...questionsDatabase]);
+            
+            // Reset state
+            state.currentQIndex = 0;
+            state.scores = { dinero: 0, ahorro: 0, presupuesto: 0, consumo: 0, instituciones: 0 };
+            state.timerSeconds = 0;
+            
+            document.getElementById('screen-start').classList.remove('active');
+            document.getElementById('screen-assessment').classList.add('active');
+            
+            state.timerInterval = setInterval(() => {
+                state.timerSeconds++;
+                document.getElementById('timer').innerText = formatTime(state.timerSeconds);
+            }, 1000);
+
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            const q = state.questions[state.currentQIndex];
+            const dimInfo = dimensionsDef[q.dim];
+
+            // Update UI
+            document.getElementById('q-counter').innerText = `${state.currentQIndex + 1} / ${state.questions.length}`;
+            const progress = ((state.currentQIndex) / state.questions.length) * 100;
+            document.getElementById('progress-bar').style.width = `${progress}%`;
+
+            const catBadge = document.getElementById('category-badge');
+            catBadge.innerText = `${dimInfo.icon} ${dimInfo.name}`;
+            catBadge.style.backgroundColor = dimInfo.color;
+
+            document.getElementById('question-text').innerText = q.q;
+
+            const optsContainer = document.getElementById('options-container');
+            optsContainer.innerHTML = '';
+
+            // Render opciones
+            q.opts.forEach((optText, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerText = optText;
+                btn.onclick = () => handleAnswer(index, btn);
+                optsContainer.appendChild(btn);
+            });
+        }
+
+        function handleAnswer(selectedIndex, btnElement) {
+            const q = state.questions[state.currentQIndex];
+            const isCorrect = selectedIndex === q.ans;
+
+            // Bloquear botones
+            const allBtns = document.querySelectorAll('.option-btn');
+            allBtns.forEach((btn, idx) => {
+                btn.disabled = true;
+                if (idx === q.ans) btn.classList.add('option-correct');
+                else if (idx === selectedIndex && !isCorrect) btn.classList.add('option-wrong');
+            });
+
+            // Registrar score
+            if (isCorrect) {
+                state.scores[q.dim] += 1;
+            }
+
+            // Esperar 1.5s y avanzar
+            setTimeout(() => {
+                state.currentQIndex++;
+                if (state.currentQIndex < state.questions.length) {
+                    renderQuestion();
+                } else {
+                    endAssessment();
+                }
+            }, 1500);
+        }
+
+        function endAssessment() {
+            clearInterval(state.timerInterval);
+            document.getElementById('screen-assessment').classList.remove('active');
+            document.getElementById('screen-results').classList.add('active');
+
+            // Calcular totales
+            let totalScore = 0;
+            for (let dim in state.scores) { totalScore += state.scores[dim]; }
+            
+            const maxScore = state.questions.length; // 40
+            const percentage = Math.round((totalScore / maxScore) * 100);
+
+            // Poblar Datos Básicos
+            document.getElementById('res-name').innerText = state.student.name.split(' ')[0];
+            document.getElementById('res-school').innerText = state.student.school;
+            document.getElementById('res-group').innerText = state.student.group;
+            document.getElementById('res-score').innerText = totalScore;
+            document.getElementById('res-percentage').innerText = `${percentage}%`;
+
+            // Animar círculo de puntaje
+            document.getElementById('score-circle').style.background = `conic-gradient(var(--secondary) ${percentage}%, #e2e8f0 0%)`;
+
+            // Nivel
+            const levelEl = document.getElementById('res-level');
+            let levelName = "";
+            if (percentage <= 39) { levelName = "Nivel Muy Bajo 🌱"; levelEl.style.backgroundColor = "var(--danger)"; }
+            else if (percentage <= 59) { levelName = "Nivel Básico 🥉"; levelEl.style.backgroundColor = "var(--warning)"; }
+            else if (percentage <= 79) { levelName = "Nivel Intermedio 🥈"; levelEl.style.backgroundColor = "var(--info)"; }
+            else { levelName = "Nivel Avanzado 🥇"; levelEl.style.backgroundColor = "var(--secondary)"; }
+            levelEl.innerText = levelName;
+
+            // Dimensiones Grid
+            const dimContainer = document.getElementById('dimensions-container');
+            dimContainer.innerHTML = '';
+            
+            const lowestDimensions = [];
+
+            for (let key in dimensionsDef) {
+                const dim = dimensionsDef[key];
+                const score = state.scores[key];
+                const maxDim = 8;
+                const p = Math.round((score / maxDim) * 100);
+                
+                if (p < 60) lowestDimensions.push(key); // Para el diagnóstico
+
+                const card = document.createElement('div');
+                card.className = 'dimension-card';
+                card.innerHTML = `
+                    <div class="dimension-header">
+                        <span style="color: ${dim.color}">${dim.icon} ${dim.name}</span>
+                        <span>${score}/${maxDim}</span>
+                    </div>
+                    <div class="progress-container" style="height: 6px; margin-bottom:0;">
+                        <div class="progress-bar" style="width: ${p}%; background-color: ${dim.color}"></div>
+                    </div>
+                `;
+                dimContainer.appendChild(card);
+            }
+
+            // Diagnóstico Personalizado
+            const diagList = document.getElementById('diagnosis-list');
+            diagList.innerHTML = '';
+
+            // Fortalezas
+            const strengthStr = `<li><strong>🌟 Fortaleza:</strong> Lograste un ${percentage}% de aciertos. ` + 
+                (percentage > 79 ? "¡Tienes un excelente dominio financiero! Eres todo un experto cuidando tu dinero." : 
+                (percentage > 59 ? "¡Buen trabajo! Tienes bases sólidas sobre el dinero, aunque hay detalles por pulir." : 
+                "Has dado el primer paso importante: aprender. ¡El mundo del dinero requiere práctica!"));
+            diagList.innerHTML += strengthStr + "</li>";
+
+            // Áreas de oportunidad
+            if (lowestDimensions.length === 0) {
+                diagList.innerHTML += `<li><strong>✅ ¡Felicidades!</strong> Tienes conocimientos altos en todas las áreas evaluadas. ¡Sigue así!</li>`;
+            } else {
+                lowestDimensions.forEach(dimKey => {
+                    let recommendation = "";
+                    switch(dimKey) {
+                        case 'dinero': recommendation = "Repasa la diferencia entre necesidades (lo vital) y deseos (los gustitos). Recuerda que el dinero cuesta trabajo ganarlo."; break;
+                        case 'ahorro': recommendation = "Practica separar una pequeña moneda en tu alcancía cada semana. ¡Verás cómo crece con el tiempo para tus metas!"; break;
+                        case 'presupuesto': recommendation = "Intenta llevar una libretita donde anotes lo que recibes y lo que gastas. ¡A esto se le llama presupuestar!"; break;
+                        case 'consumo': recommendation = "Antes de comprar algo, pregúntate: '¿De verdad lo necesito? ¿Podría encontrarlo más barato en otra tienda?'."; break;
+                        case 'instituciones': recommendation = "Platica con tus papás sobre cómo funciona un banco por dentro y por qué NUNCA debes compartir claves secretas."; break;
+                    }
+                    diagList.innerHTML += `<li><strong>🔍 Oportunidad en ${dimensionsDef[dimKey].name}:</strong> ${recommendation}</li>`;
+                });
+            }
+        }
+    </script>
+</body>
+</html>
